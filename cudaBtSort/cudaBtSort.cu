@@ -1,4 +1,4 @@
-#include <stdio.h>
+ï»¿#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <limits.h>
@@ -8,7 +8,7 @@
 #include <cutil_inline.h>
 #include <cutil_inline_runtime.h>
 
-// —v‘f”AƒuƒƒbƒNƒTƒCƒYAƒ‹[ƒv‰ñ”
+// è¦ç´ æ•°ã€ãƒ–ãƒ­ãƒƒã‚¯ã‚µã‚¤ã‚ºã€ãƒ«ãƒ¼ãƒ—å›æ•°
 #define SIZE 4096
 #define BLOCK_SIZE 256
 #define LOOP 10000
@@ -18,26 +18,26 @@ static void BtSort(int* inData);
 
 int main(){
 
-	// •Ï”éŒ¾
+	// å¤‰æ•°å®£è¨€
 	int* targetData;
 	int i, j;
 
-	// ƒƒ‚ƒŠŠm•Û
+	// ãƒ¡ãƒ¢ãƒªç¢ºä¿
 	targetData = (int*)malloc(sizeof(int) * SIZE);
 
-	// ƒfƒoƒCƒX‘¤‚Ì•Ï”éŒ¾
+	// ãƒ‡ãƒã‚¤ã‚¹å´ã®å¤‰æ•°å®£è¨€
 	int* dTargetData;
 
-	// ƒfƒoƒCƒXƒƒ‚ƒŠŠm•Û
+	// ãƒ‡ãƒã‚¤ã‚¹ãƒ¡ãƒ¢ãƒªç¢ºä¿
 	cutilSafeCall(cudaMalloc((void**)&dTargetData, sizeof(int) * SIZE));
 	cutilSafeCall(cudaMemcpy(dTargetData, targetData, sizeof(int) * SIZE, cudaMemcpyHostToDevice));
 
-	// ƒuƒƒbƒNƒTƒCƒYAƒOƒŠƒbƒhƒTƒCƒYİ’è
+	// ãƒ–ãƒ­ãƒƒã‚¯ã‚µã‚¤ã‚ºã€ã‚°ãƒªãƒƒãƒ‰ã‚µã‚¤ã‚ºè¨­å®š
 	dim3 block(BLOCK_SIZE, BLOCK_SIZE);
 	dim3 grid(SIZE / BLOCK_SIZE, SIZE / BLOCK_SIZE, SIZE / BLOCK_SIZE);
 //	if (SIZE / BLOCK_SIZE < 1)	dim3 grid(1);
 
-	// ƒ^ƒCƒ}[•Ï”‚ÌéŒ¾A‘ª’èŠJn
+	// ã‚¿ã‚¤ãƒãƒ¼å¤‰æ•°ã®å®£è¨€ã€æ¸¬å®šé–‹å§‹
 	printf("Bitonic sort start in the GPU!\n");
 	printf("Element count\t:\t%d\n", SIZE);
 	printf("BlockSize.X\t:\t%d\nBlockSize.Y\t:\t%d\nBlockSize.Z\t:\t%d\n", block.x, block.y, block.y);
@@ -48,15 +48,15 @@ int main(){
 	cudaEventCreate(&start);
 	cudaEventCreate(&stop);
 
-	// ƒƒCƒ“ƒ‹[ƒv
+	// ãƒ¡ã‚¤ãƒ³ãƒ«ãƒ¼ãƒ—
 	for (int k = 0; k < 10; k++){
 		sum = 0.0f;
 		for (i = 0; i < LOOP; i++){
-			// —v‘f‚ğ‰Šú‰»
+			// è¦ç´ ã‚’åˆæœŸåŒ–
 			for (j = 0; j < SIZE; j++)
 				targetData[j] = (int) ((rand() / ((double) RAND_MAX + 0.1f))* INT_MAX);
 				
-			// ‹L˜^ŠJnAƒJ[ƒlƒ‹ŠÖ”Às
+			// è¨˜éŒ²é–‹å§‹ã€ã‚«ãƒ¼ãƒãƒ«é–¢æ•°å®Ÿè¡Œ
 			cudaEventRecord(start, 0);
 			BtSort <<<grid, block>>>(dTargetData);
 			cudaThreadSynchronize();
@@ -69,28 +69,28 @@ int main(){
 		ave += sum;
 	}
 
-	// ‘ª’èI—¹
+	// æ¸¬å®šçµ‚äº†
 //	printf("Element count\t:\t%d\n", SIZE);
 //	printf("BlockSize\t:\t%d\nGridSize\t:\t%d\n", BLOCK_SIZE, SIZE / BLOCK_SIZE);
 //	printf("Loop count\t:\t%d\n", LOOP);
 	printf("Time average\t:\t%f minutes\n", ave /10000);
 
-	// Œ‹‰Ê‚Ì—Ìˆæ‚ÌŠm•Û‚ÆAƒfƒoƒCƒX‘¤‚©‚ç‚Ìƒƒ‚ƒŠ“]‘—
+	// çµæœã®é ˜åŸŸã®ç¢ºä¿ã¨ã€ãƒ‡ãƒã‚¤ã‚¹å´ã‹ã‚‰ã®ãƒ¡ãƒ¢ãƒªè»¢é€
 	cutilSafeCall(cudaMemcpy(targetData, dTargetData, sizeof(int) * SIZE, cudaMemcpyDeviceToHost));
 
-	// ƒƒ‚ƒŠ‰ğ•ú
+	// ãƒ¡ãƒ¢ãƒªè§£æ”¾
 	free(targetData);
 	cutilSafeCall(cudaFree(dTargetData));
 
 	cudaThreadExit();
 }
 
-// ƒoƒCƒgƒjƒbƒNƒ\[ƒg‚·‚éƒJ[ƒlƒ‹ŠÖ”
+// ãƒã‚¤ãƒˆãƒ‹ãƒƒã‚¯ã‚½ãƒ¼ãƒˆã™ã‚‹ã‚«ãƒ¼ãƒãƒ«é–¢æ•°
 __global__
 static void BtSort(int* inData){
 	const unsigned int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-	// ŠO‰ñ‚è‚Íƒ}[ƒWA“à‰ñ‚è‚Í•ª‰ğŒğŠ·‚Ìƒ‹[ƒv
+	// å¤–å›ã‚Šã¯ãƒãƒ¼ã‚¸ã€å†…å›ã‚Šã¯åˆ†è§£äº¤æ›ã®ãƒ«ãƒ¼ãƒ—
 	for(unsigned int length = 2; length <= SIZE; length *= 2){
 		for(unsigned int mlength = length / 2; mlength > 0; mlength /= 2){
 			unsigned int ixj = idx ^ mlength;
@@ -98,7 +98,7 @@ static void BtSort(int* inData){
 			if(ixj > idx){
 				int tmp;
 
-				// ¸‡‚©~‡‚©”»’f‚µ‚Ä“ü‚ê‘Ö‚¦
+				// æ˜‡é †ã‹é™é †ã‹åˆ¤æ–­ã—ã¦å…¥ã‚Œæ›¿ãˆ
 				if((idx & ixj) == 0){
 					if(inData[idx] > inData[ixj]){
 						tmp = inData[ixj];
@@ -113,8 +113,8 @@ static void BtSort(int* inData){
 					}
 				}
 			}
-			__threadfence();	//ƒAƒNƒZƒX‰Â”\‚Ü‚Å‘Ò‹@
-			__syncthreads();	//ƒXƒŒƒbƒh“¯Šú
+			__threadfence();	//ã‚¢ã‚¯ã‚»ã‚¹å¯èƒ½ã¾ã§å¾…æ©Ÿ
+			__syncthreads();	//ã‚¹ãƒ¬ãƒƒãƒ‰åŒæœŸ
 		}
 	}
 }
